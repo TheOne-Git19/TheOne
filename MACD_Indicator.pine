@@ -53,12 +53,26 @@ plotshape(bearAboveZero, title = "Bear Cross Above Zero", location = location.to
      style = shape.triangledown, color = color.new(#ef5350, 50), size = size.tiny,  text = "WEAK SELL")
 
 // ─── ALERTS ───────────────────────────────────────────────────────────────────
+
+// -- Crossover alerts --
 alertcondition(bullCross,      title = "MACD Bull Cross",            message = "MACD: Bullish crossover — MACD crossed above Signal")
 alertcondition(bearCross,      title = "MACD Bear Cross",            message = "MACD: Bearish crossover — MACD crossed below Signal")
 alertcondition(bullAboveZero,  title = "MACD Bull Cross Above Zero", message = "MACD: Strong BUY signal — Bull cross above zero line")
 alertcondition(bearBelowZero,  title = "MACD Bear Cross Below Zero", message = "MACD: Strong SELL signal — Bear cross below zero line")
 alertcondition(ta.crossover(macdLine,  0), title = "MACD Cross Above Zero", message = "MACD Line crossed above zero")
 alertcondition(ta.crossunder(macdLine, 0), title = "MACD Cross Below Zero", message = "MACD Line crossed below zero")
+
+// -- Zone alerts (fires every bar while condition is true) --
+// ตั้งค่าใน Alert Dialog → Condition → เลือกชื่อ alert ด้านล่าง
+// แนะนำให้ใช้ "Once Per Bar Close" เพื่อลด noise
+alertcondition(macdLine > 0,   title = "MACD > 0 (Bullish Zone)",   message = "MACD is ABOVE zero — Bullish zone (MACD = {{plot_0}})")
+alertcondition(macdLine < 0,   title = "MACD < 0 (Bearish Zone)",   message = "MACD is BELOW zero — Bearish zone (MACD = {{plot_0}})")
+
+// -- Zone transition alerts (fires once on first bar entering the zone) --
+macdEnteredBullZone = macdLine > 0 and macdLine[1] <= 0
+macdEnteredBearZone = macdLine < 0 and macdLine[1] >= 0
+alertcondition(macdEnteredBullZone, title = "MACD Entered Bullish Zone (> 0)", message = "MACD just entered Bullish zone — MACD crossed above 0")
+alertcondition(macdEnteredBearZone, title = "MACD Entered Bearish Zone (< 0)", message = "MACD just entered Bearish zone — MACD crossed below 0")
 
 // ─── INFO TABLE ───────────────────────────────────────────────────────────────
 showTable = input.bool(true, title = "Show Info Table", group = "Display")
