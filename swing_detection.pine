@@ -1,0 +1,200 @@
+//@version=6
+indicator("Swing Detection [MTF]", overlay=true,
+          max_lines_count=500, max_labels_count=500)
+
+// ═══════════════════════════════════════════════════════════════
+// INPUTS
+// ═══════════════════════════════════════════════════════════════
+i_tf  = input.timeframe("",   title="Timeframe  (blank = chart TF)")
+i_ext = input.int(50, title="Extension Bars (right)", minval=1, maxval=300)
+
+// ═══════════════════════════════════════════════════════════════
+// COLORS
+// ═══════════════════════════════════════════════════════════════
+C_SWING = color.green
+C_BREAK = color.white
+C_FAIL  = color.red
+C_NONE  = color.new(color.black, 100)   // fully transparent (label bg)
+
+// ═══════════════════════════════════════════════════════════════
+// TIMEFRAME & MTF DATA
+// ═══════════════════════════════════════════════════════════════
+used_tf = i_tf == "" ? timeframe.period : i_tf
+
+[tf_h, tf_l, tf_c] = request.security(
+     syminfo.tickerid, used_tf, [high, low, close],
+     lookahead = barmerge.lookahead_off)
+
+// ═══════════════════════════════════════════════════════════════
+// SWING DETECTION  (3-bar pattern — fires 1 bar after swing bar)
+//
+//   Swing High : bar[1].high > bar[2].high  AND  bar[1].high >= bar[0].high
+//   Swing Low  : bar[1].low  < bar[2].low   AND  bar[1].low  <= bar[0].low
+//
+//   When condition is true on bar[0], the SWING BAR is bar[1]
+//   → swing price  = tf_h[1]  /  tf_l[1]
+//   → swing bar_index = bar_index - 1
+// ═══════════════════════════════════════════════════════════════
+is_sh = tf_h[1] > tf_h[2] and tf_h[1] >= tf_h
+is_sl = tf_l[1] < tf_l[2] and tf_l[1] <= tf_l
+
+// ═══════════════════════════════════════════════════════════════
+// PERSISTENT STATE ARRAYS  (one entry per tracked swing)
+//
+//   a_ln     — main dashed line (green while active, white/red when done)
+//   a_lb     — SWH / SWL label at the right end of the green line
+//   a_std    — current break standard (may shift when wick breaks occur)
+//   a_seg    — bar_index where the current segment starts
+//   a_high   — true = Swing High, false = Swing Low
+//   a_active — true while swing is still unbroken
+// ═══════════════════════════════════════════════════════════════
+var array<line>  a_ln     = array.new<line>()
+var array<label> a_lb     = array.new<label>()
+var array<float> a_std    = array.new<float>()
+var array<int>   a_seg    = array.new<int>()
+var array<bool>  a_high   = array.new<bool>()
+var array<bool>  a_active = array.new<bool>()
+
+// ═══════════════════════════════════════════════════════════════
+// FUNCTION — register a new swing
+// ═══════════════════════════════════════════════════════════════
+f_add(float price, int bidx, bool is_high) =>
+    ln  = line.new(bidx, price, bar_index + i_ext, price,
+                   color=C_SWING, style=line.style_dashed, width=1)
+    lbl_txt = (is_high ? "SWH " : "SWL ") + used_tf
+    lb  = label.new(bar_index + i_ext, price, lbl_txt,
+                    xloc=xloc.bar_index, yloc=yloc.price,
+                    color=C_NONE, textcolor=C_SWING,
+                    style=label.style_label_left, size=size.small)
+    array.push(a_ln,     ln)
+    array.push(a_lb,     lb)
+    array.push(a_std,    price)
+    array.push(a_seg,    bidx)
+    array.push(a_high,   is_high)
+    array.push(a_active, true)
+
+// ═══════════════════════════════════════════════════════════════
+// STEP 1 — Process existing active swings
+//
+//  Break rules (Swing High example — Low is symmetric):
+//
+//  ① close > standard        → BREAK SUCCESS
+//      • turn main line WHITE, end at current bar
+//      • delete SWH label, add "Break" label at mid-segment
+//
+//  ② high  > standard        → WICK BREAK (failed)
+//    BUT close ≤ standard     • draw NEW RED line from seg-start to current bar
+//                             • add "x" label at mid-segment
+//                             • standard shifts up to this bar's high
+//                             • main GREEN line restarts at new standard
+//
+//  ③ neither                 → extend green line & label rightward
+// ═══════════════════════════════════════════════════════════════
+sz = array.size(a_active)
+if sz > 0
+    for i = sz - 1 to 0
+        if array.get(a_active, i)
+            is_high = array.get(a_high,  i)
+            std     = array.get(a_std,   i)
+            seg     = array.get(a_seg,   i)
+            ln      = array.get(a_ln,    i)
+            lb      = array.get(a_lb,    i)
+            mid     = int((seg + bar_index) / 2)
+
+            // ─── Swing HIGH ──────────────────────────────────────
+            if is_high
+                if tf_c > std
+                    // ✅  BREAK SUCCESS
+                    line.set_x2(ln, bar_index)
+                    line.set_color(ln, C_BREAK)
+                    label.delete(lb)
+                    label.new(mid, std, "Break",
+                              xloc=xloc.bar_index, yloc=yloc.price,
+                              color=C_NONE, textcolor=C_BREAK,
+                              style=label.style_label_center, size=size.small)
+                    array.set(a_active, i, false)
+
+                else if tf_h > std
+                    // ❌  WICK ONLY — standard shifts up
+                    line.new(seg, std, bar_index, std,
+                             color=C_FAIL, style=line.style_dashed, width=1)
+                    label.new(mid, std, "x",
+                              xloc=xloc.bar_index, yloc=yloc.price,
+                              color=C_NONE, textcolor=C_FAIL,
+                              style=label.style_label_center, size=size.small)
+                    new_std = tf_h
+                    array.set(a_std, i, new_std)
+                    array.set(a_seg, i, bar_index)
+                    line.set_x1(ln, bar_index)
+                    line.set_y1(ln, new_std)
+                    line.set_y2(ln, new_std)
+                    line.set_x2(ln, bar_index + i_ext)
+                    label.set_x(lb, bar_index + i_ext)
+                    label.set_y(lb, new_std)
+
+                else
+                    // extend rightward
+                    line.set_x2(ln, bar_index + i_ext)
+                    label.set_x(lb, bar_index + i_ext)
+
+            // ─── Swing LOW ───────────────────────────────────────
+            else
+                if tf_c < std
+                    // ✅  BREAK SUCCESS
+                    line.set_x2(ln, bar_index)
+                    line.set_color(ln, C_BREAK)
+                    label.delete(lb)
+                    label.new(mid, std, "Break",
+                              xloc=xloc.bar_index, yloc=yloc.price,
+                              color=C_NONE, textcolor=C_BREAK,
+                              style=label.style_label_center, size=size.small)
+                    array.set(a_active, i, false)
+
+                else if tf_l < std
+                    // ❌  WICK ONLY — standard shifts down
+                    line.new(seg, std, bar_index, std,
+                             color=C_FAIL, style=line.style_dashed, width=1)
+                    label.new(mid, std, "x",
+                              xloc=xloc.bar_index, yloc=yloc.price,
+                              color=C_NONE, textcolor=C_FAIL,
+                              style=label.style_label_center, size=size.small)
+                    new_std = tf_l
+                    array.set(a_std, i, new_std)
+                    array.set(a_seg, i, bar_index)
+                    line.set_x1(ln, bar_index)
+                    line.set_y1(ln, new_std)
+                    line.set_y2(ln, new_std)
+                    line.set_x2(ln, bar_index + i_ext)
+                    label.set_x(lb, bar_index + i_ext)
+                    label.set_y(lb, new_std)
+
+                else
+                    // extend rightward
+                    line.set_x2(ln, bar_index + i_ext)
+                    label.set_x(lb, bar_index + i_ext)
+
+// ═══════════════════════════════════════════════════════════════
+// STEP 2 — Register new swings detected on this bar
+// ═══════════════════════════════════════════════════════════════
+if is_sh
+    f_add(tf_h[1], bar_index - 1, true)
+if is_sl
+    f_add(tf_l[1], bar_index - 1, false)
+
+// ═══════════════════════════════════════════════════════════════
+// STEP 3 — Periodic cleanup: purge inactive entries from arrays
+//           (Pine auto-deletes chart objects once the 500 limit
+//            is reached; we only clean up the bookkeeping arrays)
+// ═══════════════════════════════════════════════════════════════
+if bar_index % 100 == 0
+    j = 0
+    while j < array.size(a_active)
+        if not array.get(a_active, j)
+            array.remove(a_ln,     j)
+            array.remove(a_lb,     j)
+            array.remove(a_std,    j)
+            array.remove(a_seg,    j)
+            array.remove(a_high,   j)
+            array.remove(a_active, j)
+        else
+            j += 1
