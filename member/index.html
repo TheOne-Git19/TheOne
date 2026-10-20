@@ -6,6 +6,12 @@
 <meta name="theme-color" content="#0c0a07">
 <meta name="robots" content="noindex">
 <title>TheOne Gold COT · Member</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Gold COT">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230c0a07'/%3E%3Cpath d='M14 46 L26 30 L36 38 L50 18' stroke='%23ecd08a' stroke-width='6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -47,6 +53,24 @@ input[type=text],input[type=email],input[type=password],input[type=number],input
 .gbtn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;background:#fff;color:#1f1f1f;border:1px solid #dadce0;font-size:15px;padding:12px 16px;margin:6px 0}
 .gbtn:hover{background:#f6f6f6}
 .alt-login{margin-top:14px;border-top:1px solid var(--line,#2e2719);padding-top:12px}.alt-login summary{cursor:pointer;font-size:13.5px;color:var(--muted)}
+.tb-items{display:contents}
+.tb-menu{display:none;position:relative}
+.ios-tip{position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.6);display:flex;align-items:flex-end;justify-content:center;padding:16px}
+.ios-tip[hidden]{display:none}
+.ios-tip>div{background:var(--surface);border:1px solid var(--gold-lo);border-radius:14px;padding:16px 18px;max-width:420px;width:100%;font-size:14px;line-height:1.6}
+.ios-tip ol{padding-left:20px;margin:8px 0 12px}
+#app-frame{height:calc(100dvh - 54px - env(safe-area-inset-top,0px))}
+@media (max-width:640px){
+  .topbar{gap:8px;padding:6px 12px;padding-top:calc(6px + env(safe-area-inset-top,0px));flex-wrap:nowrap}
+  .tb-brand{font-size:16px;flex:1}
+  #tb-user{display:none!important}
+  .tb-brand{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tb-menu{display:inline-flex}
+  .tb-items{display:none}
+  .tb-items.open{display:flex;flex-direction:column;align-items:stretch;gap:8px;position:absolute;right:10px;top:calc(100% + 6px);background:var(--surface);border:1px solid var(--gold-lo);border-radius:12px;padding:10px;min-width:200px;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+  .tb-items.open .btn{width:100%;text-align:left}
+  #app-frame{height:calc(100dvh - 46px - env(safe-area-inset-top,0px))}
+}
 .btn.solid{background:linear-gradient(180deg,#d9b55c,#a9842f);color:#1a1408;border-color:#d9b55c}
 .btn.sm{padding:5px 10px;font-size:12.5px}
 .btn.danger{border-color:var(--bear);color:var(--bear)}
@@ -132,8 +156,9 @@ td select,td input{padding:6px 8px;font-size:13px;width:auto}
 
   <!-- Login -->
   <section class="card" id="v-login" hidden>
-    <h2>เข้าสู่ระบบ</h2>
-    <button class="btn gbtn" type="button" id="li-google"><svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg><span>เข้าสู่ระบบด้วย Google</span></button>
+    <h2>เข้าสู่ระบบ / เริ่มใช้งาน</h2>
+    <p class="muted" style="font-size:13.5px;margin:0 0 4px">ใช้บัญชี Google ได้เลย · ถ้ายังไม่เคยใช้ ระบบจะสร้างบัญชีให้อัตโนมัติ แล้วเลือกแพ็กเกจ (มีทดลองฟรี 7 วัน) ด้านใน</p>
+    <button class="btn gbtn" type="button" id="li-google"><svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg><span>ดำเนินการต่อด้วย Google</span></button>
     <div id="li-gmsg"></div>
     <details class="alt-login"><summary>สมาชิกเดิม: เข้าสู่ระบบด้วย Username / รหัสผ่าน</summary>
     <form id="f-login" class="row" style="flex-direction:column;align-items:stretch;margin-top:12px">
@@ -144,7 +169,7 @@ td select,td input{padding:6px 8px;font-size:13px;width:auto}
     </form>
     <p class="muted" style="font-size:13px;margin:8px 0 0"><a href="#forgot" id="go-forgot">ลืมรหัสผ่าน</a></p>
     </details>
-    <p class="muted" style="font-size:14px">ยังไม่มีบัญชี? <a href="#register" id="go-register">สมัครสมาชิก</a></p>
+    <button class="btn sm" id="li-install" type="button" hidden style="width:100%">📲 ติดตั้งเป็นแอปบนมือถือ / คอม</button>
   </section>
 
   <!-- Forgot -->
@@ -281,11 +306,16 @@ td select,td input{padding:6px 8px;font-size:13px;width:auto}
   <div class="topbar">
     <span class="tb-brand">TheOne Gold COT</span>
     <span class="tb-user" id="tb-user"></span>
+    <button class="btn sm tb-menu" id="tb-menu" type="button" aria-expanded="false">☰<span class="badge" data-badge hidden></span></button>
+    <div class="tb-items" id="tb-items">
+    <button class="btn sm" id="tb-install" hidden>📲 ติดตั้งแอป</button>
     <button class="btn sm" id="tb-guides">📘 คู่มือ</button>
     <button class="btn sm" id="tb-acc">บัญชี / ต่ออายุ</button>
     <button class="btn sm" id="tb-admin" hidden>Admin<span class="badge" data-badge hidden></span></button>
     <button class="btn sm" id="tb-logout">ออกจากระบบ</button>
+    </div>
   </div>
+  <div class="ios-tip" id="ios-tip" hidden><div><b>ติดตั้งเป็นแอปบน iPhone / iPad</b><ol><li>แตะปุ่ม <b>แชร์</b> (สี่เหลี่ยมมีลูกศรขึ้น) ด้านล่างของ Safari</li><li>เลือก <b>เพิ่มไปยังหน้าจอโฮม</b> (Add to Home Screen)</li><li>แตะ <b>เพิ่ม</b> · ไอคอน Gold COT จะอยู่บนหน้าจอโฮม เปิดแบบแอปเต็มจอ</li></ol><button class="btn sm" id="ios-ok">เข้าใจแล้ว</button></div></div>
   <iframe id="app-frame" title="COMEX Gold COT Dashboard"></iframe>
 </div>
 
@@ -378,7 +408,7 @@ async function route(){
   if(!S.user){S.profile=null;
     if(AUTH_ERR&&!route._err){route._err=1;history.replaceState(null,'',location.pathname);show('v-login');renderRegister();
       return msg('#li-msg',/expired|invalid/i.test(decodeURIComponent(AUTH_ERR))?'ลิงก์ยืนยันหมดอายุหรือถูกใช้ไปแล้ว ถ้ายืนยันไปแล้วให้เข้าสู่ระบบได้เลย':'ยืนยันอีเมลไม่สำเร็จ: '+decodeURIComponent(AUTH_ERR.replace(/\+/g,' ')),'info')}
-    return show(location.hash==='#register'?'v-register':'v-login'),renderRegister()}
+    return show('v-login')}
   const cbNow=AUTH_CB&&!route._cb;
   if(cbNow){route._cb=1;await claimDevice();history.replaceState(null,'',location.pathname);toast('เข้าสู่ระบบสำเร็จ ยินดีต้อนรับสู่ TheOne Gold COT')}
   await loadProfile();
@@ -402,7 +432,7 @@ $('#f-login').onsubmit=async e=>{e.preventDefault();msg('#li-msg','');const b=e.
     await route();
   })};
 function renderRegister(){pkgCards('#rg-pkgs','rg-pkg',{selected:'trial'})}
-$('#go-register').onclick=e=>{e.preventDefault();renderRegister();show('v-register')};
+
 document.querySelectorAll('.go-login').forEach(a=>a.onclick=e=>{e.preventDefault();show('v-login')});
 $('#go-forgot').onclick=e=>{e.preventDefault();show('v-forgot')};
 // Sign-up / login with Google: the package picked here is remembered across the Google redirect
@@ -429,6 +459,8 @@ async function renderAccount(){
   $('#acc-status').innerHTML=`<div class="stat"><div><span>สมาชิก</span><b style="font-size:17px">${esc(p.username)}</b></div><div><span>ประเภท</span><b style="font-size:15px">${typeChip(p.member_type)}</b></div><div><span>สถานะ</span><b style="font-size:15px;font-family:var(--f-body)">${st}</b></div></div>`;
   $('#acc-open').hidden=!acc;$('#acc-guides').hidden=!acc;$('#acc-admin').hidden=!isOwner();refreshBadge();
   $('#acc-renew').hidden=p.member_type!=='subscription';
+  const fresh=!acc&&!p.expires_at&&!p.trial_used;   // brand-new member: welcome + choose a package
+  $('#acc-renew .muted').innerHTML=fresh?'<b style="color:var(--gold-hi);font-size:15px">ยินดีต้อนรับ '+esc(p.username)+'</b><br>เลือกแพ็กเกจเพื่อเริ่มใช้งาน · แนะนำเริ่มจาก <b>ทดลองใช้ฟรี 7 วัน</b> (กดดำเนินการต่อแล้วเปิด Dashboard ทันที)':'เลือกแพ็กเกจเพื่อต่ออายุ / เริ่มใช้งาน';
   pkgCards('#acc-pkgs','acc-pkg',{trialOk:!p.trial_used,selected:p.trial_used?'m1':'trial'});
   const {data:pays}=await sb.from('payments').select('*').eq('user_id',p.id).order('created_at',{ascending:false}).limit(5);
   const pend=(pays||[]).filter(x=>x.status==='pending');
@@ -609,6 +641,24 @@ $('#gd-up').onclick=async e=>{const fs=[...$('#gd-file').files];if(!fs.length)re
     const {error}=await sb.storage.from('app').upload('guides/'+name,f,{upsert:true,contentType:'application/pdf',cacheControl:'3600'});
     if(error){$('#gd-msg').textContent=name+': '+errText(error);return}ok++}
     $('#gd-msg').textContent='อัปโหลดแล้ว '+ok+' ไฟล์';$('#gd-file').value='';toast('อัปโหลดคู่มือแล้ว')})};
+
+
+/* ===================== App install (PWA) & compact menu ===================== */
+$('#tb-menu').onclick=e=>{e.stopPropagation();const m=$('#tb-items'),o=!m.classList.contains('open');m.classList.toggle('open',o);$('#tb-menu').setAttribute('aria-expanded',o)};
+document.addEventListener('click',e=>{if(!e.target.closest('#tb-items'))$('#tb-items').classList.remove('open')});
+const STANDALONE=matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+const IOS=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+let deferredInstall=null;
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstall=e;$('#tb-install').hidden=false;const li=$('#li-install');if(li)li.hidden=false});
+window.addEventListener('appinstalled',()=>{deferredInstall=null;$('#tb-install').hidden=true;toast('ติดตั้งแอปแล้ว · เปิดได้จากไอคอน Gold COT')});
+if(IOS&&!STANDALONE)$('#tb-install').hidden=false;
+async function installApp(){
+  if(deferredInstall){deferredInstall.prompt();await deferredInstall.userChoice.catch(()=>{});deferredInstall=null;return}
+  if(IOS){$('#ios-tip').hidden=false;return}
+  toast('เปิดเมนูของเบราว์เซอร์ แล้วเลือก "ติดตั้งแอป" หรือ "เพิ่มลงในหน้าจอหลัก"')}
+$('#tb-install').onclick=installApp;$('#li-install').onclick=installApp;if(IOS&&!STANDALONE)$('#li-install').hidden=false;
+$('#ios-ok').onclick=()=>$('#ios-tip').hidden=true;
 
 /* ===================== Boot ===================== */
 sb.auth.onAuthStateChange((ev)=>{if(ev==='PASSWORD_RECOVERY')show('v-newpass')});

@@ -1,0 +1,19 @@
+{
+  "name": "TheOne Gold COT Dashboard",
+  "short_name": "Gold COT",
+  "description": "COMEX Gold COT · Weekly Bias · แผนเทรด XAUUSD · ทองไทย · ข่าวล่าสุด — Power by TheOne",
+  "id": "/TheOne/member/",
+  "start_url": "/TheOne/member/?source=app",
+  "scope": "/TheOne/member/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#0c0a07",
+  "theme_color": "#0c0a07",
+  "lang": "th",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
