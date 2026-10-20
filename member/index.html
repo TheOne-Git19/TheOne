@@ -332,6 +332,10 @@ const hasAccess=p=>!!p&&(p.member_type!=='subscription'||(p.expires_at&&new Date
 const isOwner=()=>S.profile?.member_type==='owner';
 
 if(!CFG.url||!CFG.anon||/YOUR_/.test(CFG.url+CFG.anon)){show('v-setup');throw new Error('config.js not set')}
+// arriving from an email link (confirm signup / magic link): remember it before supabase-js reads and clears the URL
+const AUTH_URL=location.hash+location.search;
+const AUTH_CB=/access_token=|[?&]code=|[?&]token_hash=/.test(AUTH_URL)&&!/type=recovery/.test(AUTH_URL);
+const AUTH_ERR=(AUTH_URL.match(/error_description=([^&]+)/)||[])[1];
 const sb=supabase.createClient(CFG.url,CFG.anon);
 
 /* ===================== One device per account ===================== */
@@ -368,9 +372,18 @@ async function route(){
   const {data:{session}}=await sb.auth.getSession();
   S.user=session?.user||null;
   await loadPublic();
-  if(!S.user){S.profile=null;return show(location.hash==='#register'?'v-register':'v-login'),renderRegister()}
+  if(!S.user){S.profile=null;
+    if(AUTH_ERR&&!route._err){route._err=1;history.replaceState(null,'',location.pathname);show('v-login');renderRegister();
+      return msg('#li-msg',/expired|invalid/i.test(decodeURIComponent(AUTH_ERR))?'ลิงก์ยืนยันหมดอายุหรือถูกใช้ไปแล้ว ถ้ายืนยันไปแล้วให้เข้าสู่ระบบได้เลย':'ยืนยันอีเมลไม่สำเร็จ: '+decodeURIComponent(AUTH_ERR.replace(/\+/g,' ')),'info')}
+    return show(location.hash==='#register'?'v-register':'v-login'),renderRegister()}
+  const cbNow=AUTH_CB&&!route._cb;
+  if(cbNow){route._cb=1;await claimDevice();history.replaceState(null,'',location.pathname);toast('ยืนยันอีเมลสำเร็จ ยินดีต้อนรับสู่ TheOne Gold COT')}
   await loadProfile();
   if(S.profile.member_type!=='owner'&&!(await sessionValid()))return terminate(KICK);
+  if(cbNow&&!hasAccess(S.profile)){   // first visit from the confirmation email: continue what they chose at sign-up
+    const pk=S.profile.package;
+    if(pk==='trial'&&!S.profile.trial_used){const {error:e2}=await sb.rpc('start_trial');if(!e2){await loadProfile();toast('ยืนยันอีเมลสำเร็จ · เริ่มทดลองใช้ 7 วันแล้ว');return openApp()}}
+    else if(pk&&pk!=='trial'){renderAccount();return openPay(pk)}}
   if(hasAccess(S.profile))return openApp();
   renderAccount();show('v-account');
 }
