@@ -308,14 +308,15 @@ td select,td input{padding:6px 8px;font-size:13px;width:auto}
     <span class="tb-user" id="tb-user"></span>
     <button class="btn sm tb-menu" id="tb-menu" type="button" aria-expanded="false">☰<span class="badge" data-badge hidden></span></button>
     <div class="tb-items" id="tb-items">
-    <button class="btn sm" id="tb-install" hidden>📲 ติดตั้งแอป</button>
+    <button class="btn sm" id="tb-install">📲 สร้างแอป</button>
+    <button class="btn sm" id="tb-share">🔗 แชร์แอป</button>
     <button class="btn sm" id="tb-guides">📘 คู่มือ</button>
     <button class="btn sm" id="tb-acc">บัญชี / ต่ออายุ</button>
     <button class="btn sm" id="tb-admin" hidden>Admin<span class="badge" data-badge hidden></span></button>
     <button class="btn sm" id="tb-logout">ออกจากระบบ</button>
     </div>
   </div>
-  <div class="ios-tip" id="ios-tip" hidden><div><b>ติดตั้งเป็นแอปบน iPhone / iPad</b><ol><li>แตะปุ่ม <b>แชร์</b> (สี่เหลี่ยมมีลูกศรขึ้น) ด้านล่างของ Safari</li><li>เลือก <b>เพิ่มไปยังหน้าจอโฮม</b> (Add to Home Screen)</li><li>แตะ <b>เพิ่ม</b> · ไอคอน Gold COT จะอยู่บนหน้าจอโฮม เปิดแบบแอปเต็มจอ</li></ol><button class="btn sm" id="ios-ok">เข้าใจแล้ว</button></div></div>
+  <div class="ios-tip" id="ios-tip" hidden><div id="ios-tip-in"></div></div>
   <iframe id="app-frame" title="COMEX Gold COT Dashboard"></iframe>
 </div>
 
@@ -650,15 +651,27 @@ const STANDALONE=matchMedia('(display-mode: standalone)').matches||navigator.sta
 const IOS=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
 let deferredInstall=null;
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
-window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstall=e;$('#tb-install').hidden=false;const li=$('#li-install');if(li)li.hidden=false});
-window.addEventListener('appinstalled',()=>{deferredInstall=null;$('#tb-install').hidden=true;toast('ติดตั้งแอปแล้ว · เปิดได้จากไอคอน Gold COT')});
-if(IOS&&!STANDALONE)$('#tb-install').hidden=false;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstall=e;const li=$('#li-install');if(li)li.hidden=false});
+window.addEventListener('appinstalled',()=>{deferredInstall=null;toast('สร้างแอปแล้ว · เปิดได้จากไอคอน Gold COT บนหน้าจอ')});
+const APP_URL='https://theone-git19.github.io/TheOne/member/';
+function appGuide(title,steps){$('#ios-tip-in').innerHTML=`<b>${title}</b><ol>${steps.map(x=>'<li>'+x+'</li>').join('')}</ol><button class="btn sm" id="ios-ok">เข้าใจแล้ว</button>`;$('#ios-tip').hidden=false;$('#ios-ok').onclick=()=>$('#ios-tip').hidden=true}
+// "Create App": install the site as an app (icon on the home screen / desktop, opens full-screen)
 async function installApp(){
+  $('#tb-items').classList.remove('open');
+  if(STANDALONE)return toast('กำลังใช้งานแบบแอปอยู่แล้ว');
   if(deferredInstall){deferredInstall.prompt();await deferredInstall.userChoice.catch(()=>{});deferredInstall=null;return}
-  if(IOS){$('#ios-tip').hidden=false;return}
-  toast('เปิดเมนูของเบราว์เซอร์ แล้วเลือก "ติดตั้งแอป" หรือ "เพิ่มลงในหน้าจอหลัก"')}
-$('#tb-install').onclick=installApp;$('#li-install').onclick=installApp;if(IOS&&!STANDALONE)$('#li-install').hidden=false;
-$('#ios-ok').onclick=()=>$('#ios-tip').hidden=true;
+  if(IOS)return appGuide('สร้างแอปบน iPhone / iPad (ใช้ Safari)',['แตะปุ่ม <b>แชร์</b> (สี่เหลี่ยมมีลูกศรขึ้น) ที่แถบด้านล่างของ Safari','เลื่อนหา <b>เพิ่มไปยังหน้าจอโฮม</b> (Add to Home Screen)','แตะ <b>เพิ่ม</b> · ไอคอน Gold COT จะอยู่บนหน้าจอโฮม เปิดแบบแอปเต็มจอ']);
+  if(/android/i.test(navigator.userAgent))return appGuide('สร้างแอปบน Android',['แตะปุ่ม <b>⋮</b> (มุมขวาบนของ Chrome)','เลือก <b>ติดตั้งแอป</b> หรือ <b>เพิ่มลงในหน้าจอหลัก</b>','แตะ <b>ติดตั้ง</b> · ไอคอน Gold COT จะอยู่บนหน้าจอ']);
+  appGuide('สร้างแอปบนคอม (Chrome / Edge)',['ดูที่ช่องที่อยู่เว็บด้านบน แล้วคลิกไอคอน <b>ติดตั้ง</b> (รูปจอมีลูกศร) ทางขวา','หรือเปิดเมนู <b>⋮</b> › <b>บันทึกและแชร์ › ติดตั้งหน้าเว็บนี้เป็นแอป</b> (Edge: <b>แอป › ติดตั้งไซต์นี้เป็นแอป</b>)','กด <b>ติดตั้ง</b> · ไอคอน Gold COT จะอยู่บนเดสก์ท็อป / Taskbar'])}
+// "Share App": the phone's share sheet, or copy the link
+async function shareApp(){
+  $('#tb-items').classList.remove('open');
+  const data={title:'TheOne Gold COT Dashboard',text:'Gold COT Dashboard · ดูว่ากองทุนใหญ่ทำอะไรกับทองคำ + แผนเทรด XAUUSD + ทองไทย + ข่าวสรุปภาษาไทย · ทดลองฟรี 7 วัน',url:APP_URL};
+  try{if(navigator.share){await navigator.share(data);return}}catch(e){if(e&&e.name==='AbortError')return}
+  try{await navigator.clipboard.writeText(data.text+'\n'+APP_URL);toast('คัดลอกลิงก์แล้ว · วางส่งใน LINE / Facebook ได้เลย')}
+  catch(e){appGuide('แชร์แอป',['คัดลอกลิงก์นี้: <b style="word-break:break-all">'+APP_URL+'</b>','ส่งให้เพื่อนทาง LINE / Facebook / Messenger'])}}
+window.TheOneApp={install:installApp,share:shareApp};   // the dashboard (inside the frame) calls these
+$('#tb-install').onclick=installApp;$('#tb-share').onclick=shareApp;$('#li-install').onclick=installApp;if(IOS&&!STANDALONE)$('#li-install').hidden=false;
 
 /* ===================== Boot ===================== */
 sb.auth.onAuthStateChange((ev)=>{if(ev==='PASSWORD_RECOVERY')show('v-newpass')});
