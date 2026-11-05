@@ -663,13 +663,36 @@ async function installApp(){
   if(IOS)return appGuide('สร้างแอปบน iPhone / iPad (ใช้ Safari)',['แตะปุ่ม <b>แชร์</b> (สี่เหลี่ยมมีลูกศรขึ้น) ที่แถบด้านล่างของ Safari','เลื่อนหา <b>เพิ่มไปยังหน้าจอโฮม</b> (Add to Home Screen)','แตะ <b>เพิ่ม</b> · ไอคอน Gold COT จะอยู่บนหน้าจอโฮม เปิดแบบแอปเต็มจอ']);
   if(/android/i.test(navigator.userAgent))return appGuide('สร้างแอปบน Android',['แตะปุ่ม <b>⋮</b> (มุมขวาบนของ Chrome)','เลือก <b>ติดตั้งแอป</b> หรือ <b>เพิ่มลงในหน้าจอหลัก</b>','แตะ <b>ติดตั้ง</b> · ไอคอน Gold COT จะอยู่บนหน้าจอ']);
   appGuide('สร้างแอปบนคอม (Chrome / Edge)',['ดูที่ช่องที่อยู่เว็บด้านบน แล้วคลิกไอคอน <b>ติดตั้ง</b> (รูปจอมีลูกศร) ทางขวา','หรือเปิดเมนู <b>⋮</b> › <b>บันทึกและแชร์ › ติดตั้งหน้าเว็บนี้เป็นแอป</b> (Edge: <b>แอป › ติดตั้งไซต์นี้เป็นแอป</b>)','กด <b>ติดตั้ง</b> · ไอคอน Gold COT จะอยู่บนเดสก์ท็อป / Taskbar'])}
-// "Share App": the phone's share sheet, or copy the link
+// "Share App": the phone's share sheet, or copy the message + link
+const SHARE_MSG=`🥇 TheOne Gold COT Dashboard
+เทรดทองแบบรู้ทัน "เงินก้อนใหญ่" ในหน้าจอเดียว
+
+เคยไหม… ซื้อทองแล้วติดดอย ขายแล้วทองวิ่งต่อ เพราะไม่รู้ว่ากองทุนใหญ่กำลังทำอะไร?
+TheOne รวมข้อมูลที่เทรดเดอร์มืออาชีพใช้ แล้วสรุปให้อ่านจบในไม่กี่นาที เป็นภาษาไทย
+
+✅ ดูว่าเงินกองทุนไหลเข้าหรือออกจากทอง (COT · CFTC รายสัปดาห์)
+✅ Weekly Bias: ทิศทางสัปดาห์นี้ พร้อมโซนซื้อ โซนขาย และจุดตัดขาดทุน
+✅ เศรษฐกิจ & ดอกเบี้ยสหรัฐฯ: Bond Yield · Real Yield · Fed · เงินเฟ้อ · GDP บอกว่าหนุนหรือกดดันทอง
+✅ ข่าวเศรษฐกิจวันนี้ อัปเดตเกือบทันทีที่ตัวเลขออก
+✅ แผนเทรด ICT รายวัน (XAUUSD M15) จุดเข้า · SL · TP พร้อมโหมด "เข้าใจง่าย" สำหรับมือใหม่
+✅ ทองคำแท่งไทย 96.5% แปลงเป็นราคาบาทละ พร้อมแผนซื้อสะสม / แบ่งขายทำกำไร
+✅ ข่าวทองและตลาดโลกทุกวัน แปลเป็นไทยอัตโนมัติ
+✅ Gold Outlook PDF ในคลิกเดียว
+
+📱 ติดตั้งเป็นแอปได้ · เข้าสู่ระบบด้วย Google คลิกเดียว · ใช้ได้ทั้งมือถือ แท็บเล็ต และคอม
+
+👥 เหมาะกับ: เทรดเดอร์ XAUUSD · นักลงทุนทองคำแท่ง/ทองออม · มือใหม่ที่อยากเข้าใจตลาดทอง · คนไม่มีเวลาไล่อ่านข่าว
+
+🎁 ทดลองใช้ฟรี 7 วัน 👇
+
+#ทองคำ #XAUUSD #ทองคำแท่ง #เทรดทอง #COT #ICT #TheOneSignal
+⚠️ ข้อมูลประกอบการตัดสินใจ ไม่ใช่คำแนะนำการลงทุน`;
 async function shareApp(){
   $('#tb-items').classList.remove('open');
-  const data={title:'TheOne Gold COT Dashboard',text:'Gold COT Dashboard · ดูว่ากองทุนใหญ่ทำอะไรกับทองคำ + แผนเทรด XAUUSD + ทองไทย + ข่าวสรุปภาษาไทย · ทดลองฟรี 7 วัน',url:APP_URL};
+  const data={title:'TheOne Gold COT Dashboard',text:SHARE_MSG,url:APP_URL};
   try{if(navigator.share){await navigator.share(data);return}}catch(e){if(e&&e.name==='AbortError')return}
-  try{await navigator.clipboard.writeText(data.text+'\n'+APP_URL);toast('คัดลอกลิงก์แล้ว · วางส่งใน LINE / Facebook ได้เลย')}
-  catch(e){appGuide('แชร์แอป',['คัดลอกลิงก์นี้: <b style="word-break:break-all">'+APP_URL+'</b>','ส่งให้เพื่อนทาง LINE / Facebook / Messenger'])}}
+  try{await navigator.clipboard.writeText(data.text+'\n'+APP_URL);toast('คัดลอกข้อความแนะนำแอป + ลิงก์แล้ว · วางส่งใน LINE / Facebook ได้เลย')}
+  catch(e){const esc=x=>x.replace(/&/g,'&amp;').replace(/</g,'&lt;');appGuide('แชร์แอป',['คัดลอกข้อความด้านล่าง (กดค้าง / Ctrl+A แล้ว Ctrl+C) <textarea id="share-txt" readonly rows="8" style="display:block;width:100%;margin-top:6px;font:inherit;font-size:13px;background:#1a1610;color:#ede5d3;border:1px solid #3d3422;border-radius:8px;padding:8px">'+esc(data.text+'\n'+APP_URL)+'</textarea>','ส่งให้เพื่อนทาง LINE / Facebook / Messenger']);const ta=document.getElementById('share-txt');if(ta){ta.focus();ta.select()}}}
 window.TheOneApp={install:installApp,share:shareApp};   // the dashboard (inside the frame) calls these
 $('#tb-install').onclick=installApp;$('#tb-share').onclick=shareApp;$('#li-install').onclick=installApp;if(IOS&&!STANDALONE)$('#li-install').hidden=false;
 
