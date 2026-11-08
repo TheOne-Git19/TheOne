@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="th">
 <head>
+<script>if(/github\.io$/.test(location.hostname))location.replace('https://theone-gold-cot-dashboard.vercel.app/member/'+location.pathname.replace(/^\/TheOne\/member\/?/,'').replace(/^index\.html$/,'')+location.search+location.hash)</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0c0a07">
@@ -653,7 +654,7 @@ let deferredInstall=null;
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstall=e;const li=$('#li-install');if(li)li.hidden=false});
 window.addEventListener('appinstalled',()=>{deferredInstall=null;toast('สร้างแอปแล้ว · เปิดได้จากไอคอน Gold COT บนหน้าจอ')});
-const APP_URL='https://theone-git19.github.io/TheOne/member/';
+const APP_URL='https://theone-gold-cot-dashboard.vercel.app/member/';
 function appGuide(title,steps){$('#ios-tip-in').innerHTML=`<b>${title}</b><ol>${steps.map(x=>'<li>'+x+'</li>').join('')}</ol><button class="btn sm" id="ios-ok">เข้าใจแล้ว</button>`;$('#ios-tip').hidden=false;$('#ios-ok').onclick=()=>$('#ios-tip').hidden=true}
 // "Create App": install the site as an app (icon on the home screen / desktop, opens full-screen)
 async function installApp(){
